@@ -35,6 +35,12 @@ images = {
     "exhausted": PhotoImage(file="exhausted.png"),
 }
 
+# other non-state images
+# hp_icon = PhotoImage(file="hp.png")
+# money = PhotoImage()
+# main-menu = PhotoImage()
+
+
 # Dashboard Frames
 character_frame = tk.Frame(my_profile, borderwidth=2, relief="groove")
 statistics_frame = tk.Frame(my_profile, borderwidth=2, relief="groove")
@@ -71,6 +77,15 @@ name_label.pack(side=tk.LEFT, padx=5)
 
 name_entry = tk.Entry(name_frame)
 name_entry.pack(side=tk.LEFT, expand=True, padx=5)
+
+# this section is for the timer
+
+
+
+# this section is for the shop
+
+# display the tabs on the bottom
+
 
 label1 = tk.Label(my_profile,text="My profile")
 
