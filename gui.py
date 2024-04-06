@@ -4,10 +4,11 @@ import tkinter as tk
 from tkinter import ttk, PhotoImage
 from pet import Pet
 
-# from screentime_tracker import track_screentime
+from screentime_tracker import track_screentime
 
 import threading
 import queue
+import time
 
 # Initialize the main window
 root = tk.Tk()
@@ -33,11 +34,13 @@ images = {
 character_frame = tk.Frame(root, borderwidth=2, relief="groove")
 statistics_frame = tk.Frame(root, borderwidth=2, relief="groove")
 controls_frame = tk.Frame(root, borderwidth=2, relief="groove")
+timer_frame = tk.Frame(root, borderwidth=2, relief="groove")
 
 # Arrange frames in a grid
 character_frame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
 statistics_frame.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
-controls_frame.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+controls_frame.grid(row=2, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+timer_frame.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
 # Configure column and row weights to make the frames responsive
 root.grid_columnconfigure(0, weight=1)
@@ -90,14 +93,51 @@ def update_pet_name_display():
 
 update_pet_name_display()
 
-"""
+# Timer Input
+timer_label = tk.Label(timer_frame, text="Set Time (s):")
+timer_label.pack(side=tk.LEFT, padx=5, pady=5)
+timer_entry = tk.Entry(timer_frame)
+timer_entry.pack(side=tk.LEFT, padx=5, pady=5)
 
-#screentime tracket
+# Start Button
+start_button = tk.Button(timer_frame, text="Start Timer", command=lambda: start_timer(int(timer_entry.get())))
+start_button.pack(pady=10)
+
+
+# Function to start the timer and screentime tracker
+def start_timer(total_time):
+    start_button.config(state=tk.DISABLED)  # Disable the start button to prevent re-starting
+    tracker_thread = threading.Thread(target=lambda: track_time(total_time), daemon=True)
+    tracker_thread.start()
+
+# Function to track time and update character state
+def track_time(total_time):
+    start_time = time.time()
+    while True:
+        elapsed_time = time.time() - start_time
+        if elapsed_time >= total_time:
+            update_character_state("exhausted")
+            break
+        elif elapsed_time >= total_time / 2:
+            update_character_state("tired")
+        time.sleep(1)  # Check every second
+
+# Function to update the pet's state based on time
+def update_character_state(state):
+    print("Updating character state to {state}")
+    root.after(0, lambda: character_label.config(image=images[state]))
+
+
+# screentime tracket
 screentime_queue = queue.Queue()
 
+
 def start_screentime_tracker():
-    for screentime in track_screentime("com.google.Chrome"):
+    print("start_screentime_tracker running")
+    for screentime in track_screentime("com.tinyspeck.slackmacgap"):
         screentime_queue.put(screentime)
+        print("screentime running")
+
 
 # Function to update the screentime label
 # Function to update the screentime label with seconds included
@@ -108,12 +148,15 @@ def update_screentime_display():
         # Format the screentime into hours, minutes, and seconds and update the label
         hours, remainder = divmod(screentime, 3600)
         minutes, seconds = divmod(remainder, 60)
-        screentime_label.config(text=f"Screentime: {int(hours)}h {int(minutes)}m {int(seconds)}s")
+        screentime_label.config(
+            text=f"Screentime: {int(hours)}h {int(minutes)}m {int(seconds)}s"
+        )
     except queue.Empty:
         pass
     finally:
         # Schedule this function to be called again after 1000ms (1 second) to keep the display updated
         root.after(1000, update_screentime_display)
+
 
 # Start the tracker in a separate thread
 tracker_thread = threading.Thread(target=start_screentime_tracker, daemon=True)
@@ -121,7 +164,7 @@ tracker_thread.start()
 
 # Start the periodic update for the screentime display
 update_screentime_display()
-
+"""
 # Controls (Example: Buttons to simulate screentime)
 btn_increase_screentime = tk.Button(controls_frame, text="Increase Screentime", command=increase_screentime)
 btn_increase_screentime.pack(side=tk.LEFT, expand=True)
@@ -142,10 +185,10 @@ def reset_screentime():
 
 # Update Function (simply call this once for now)
 # This would be called periodically in the real application
-def update_character_state():
+'''def update_character_state():
     # Update the pet's state and the image shown
     character_label.config(image=images[my_pet.get_state()])
-
+'''
 
 # Start the Tkinter event loop
 root.mainloop()
