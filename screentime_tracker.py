@@ -17,3 +17,4 @@ def track_screentime(app_bundle_id, update_interval=1):
         
         time.sleep(update_interval)
         yield total_time
+

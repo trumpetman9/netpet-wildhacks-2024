@@ -1,11 +1,10 @@
 # gui.py
 
 import tkinter as tk
-from tkinter import PhotoImage
+from tkinter import ttk, PhotoImage
 from pet import Pet
 
-from screentime_tracker import track_screentime
-
+# from screentime_tracker import track_screentime
 
 import threading
 import queue
@@ -14,6 +13,12 @@ import queue
 root = tk.Tk()
 root.title("Pixel Pet Dashboard")
 
+# Create a notebook for tabs
+
+tabControl = ttk.Notebook(root)
+
+my_profile = ttk.Frame()
+
 # Initialize the pet
 my_pet = Pet()
 
@@ -21,7 +26,7 @@ my_pet = Pet()
 images = {
     "happy": PhotoImage(file="happy.png"),
     "tired": PhotoImage(file="tired.png"),
-    "exhausted": PhotoImage(file="exhausted.png")
+    "exhausted": PhotoImage(file="exhausted.png"),
 }
 
 # Dashboard Frames
@@ -61,12 +66,14 @@ name_label.pack(side=tk.LEFT, padx=5)
 name_entry = tk.Entry(name_frame)
 name_entry.pack(side=tk.LEFT, expand=True, padx=5)
 
+
 # Function to set pet's name
 def set_pet_name():
     pet_name = name_entry.get()
     my_pet.set_name(pet_name)  # Update this method in the Pet class
     name_entry.delete(0, tk.END)  # Clear the entry field
     update_pet_name_display()  # Update the display with the new name
+
 
 # Button to set pet name
 set_name_button = tk.Button(name_frame, text="Set Name", command=set_pet_name)
@@ -79,9 +86,11 @@ pet_name_display.pack(side=tk.BOTTOM)
 
 def update_pet_name_display():
     pet_name_display.config(text=my_pet.get_name())
+
+
 update_pet_name_display()
 
-
+"""
 
 #screentime tracket
 screentime_queue = queue.Queue()
@@ -112,7 +121,7 @@ tracker_thread.start()
 
 # Start the periodic update for the screentime display
 update_screentime_display()
-'''
+
 # Controls (Example: Buttons to simulate screentime)
 btn_increase_screentime = tk.Button(controls_frame, text="Increase Screentime", command=increase_screentime)
 btn_increase_screentime.pack(side=tk.LEFT, expand=True)
@@ -128,12 +137,15 @@ def increase_screentime():
 def reset_screentime():
     # This would reset the screentime
     print("Reset screentime")
-'''
+"""
+
+
 # Update Function (simply call this once for now)
 # This would be called periodically in the real application
 def update_character_state():
     # Update the pet's state and the image shown
     character_label.config(image=images[my_pet.get_state()])
+
 
 # Start the Tkinter event loop
 root.mainloop()
