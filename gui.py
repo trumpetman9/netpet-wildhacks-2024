@@ -1,5 +1,3 @@
-# gui.py
-
 import tkinter as tk
 from tkinter import ttk, PhotoImage
 from pet import Pet
@@ -9,6 +7,7 @@ from pet import Pet
 import threading
 import queue
 
+
 # Initialize the main window
 root = tk.Tk()
 root.title("Pixel Pet Dashboard")
@@ -16,8 +15,15 @@ root.title("Pixel Pet Dashboard")
 # Create a notebook for tabs
 
 tabControl = ttk.Notebook(root)
+tabControl.pack(fill='both', expand=True)
 
-my_profile = ttk.Frame()
+my_profile = ttk.Frame(tabControl)
+timers = ttk.Frame(tabControl)
+shops = ttk.Frame(tabControl)
+
+tabControl.add(my_profile, text="My Profile")
+tabControl.add(timers, text="Timers")
+tabControl.add(shops, text="Shops")
 
 # Initialize the pet
 my_pet = Pet()
@@ -30,9 +36,9 @@ images = {
 }
 
 # Dashboard Frames
-character_frame = tk.Frame(root, borderwidth=2, relief="groove")
-statistics_frame = tk.Frame(root, borderwidth=2, relief="groove")
-controls_frame = tk.Frame(root, borderwidth=2, relief="groove")
+character_frame = tk.Frame(my_profile, borderwidth=2, relief="groove")
+statistics_frame = tk.Frame(my_profile, borderwidth=2, relief="groove")
+controls_frame = tk.Frame(my_profile, borderwidth=2, relief="groove")
 
 # Arrange frames in a grid
 character_frame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
@@ -55,7 +61,7 @@ screentime_label.pack(expand=True)
 
 
 # Controls for pet name
-name_frame = tk.Frame(root, borderwidth=2, relief="groove")
+name_frame = tk.Frame(my_profile, borderwidth=2, relief="groove")
 name_frame.grid(row=2, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 root.grid_rowconfigure(2, weight=1)
 
@@ -65,6 +71,8 @@ name_label.pack(side=tk.LEFT, padx=5)
 
 name_entry = tk.Entry(name_frame)
 name_entry.pack(side=tk.LEFT, expand=True, padx=5)
+
+label1 = tk.Label(my_profile,text="My profile")
 
 
 # Function to set pet's name
@@ -149,3 +157,4 @@ def update_character_state():
 
 # Start the Tkinter event loop
 root.mainloop()
+
