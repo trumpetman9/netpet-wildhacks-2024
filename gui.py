@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import ttk, PhotoImage
 from pet import Pet
 
-# from screentime_tracker import track_screentime
+from screentime_tracker import track_screentime
 
 import threading
 import queue
@@ -90,14 +90,16 @@ def update_pet_name_display():
 
 update_pet_name_display()
 
-"""
+
 
 #screentime tracket
 screentime_queue = queue.Queue()
 
 def start_screentime_tracker():
-    for screentime in track_screentime("com.google.Chrome"):
+    print("start_screentime_tracker running")
+    for screentime in track_screentime("com.tinyspeck.slackmacgap"):
         screentime_queue.put(screentime)
+        print("screentime running")
 
 # Function to update the screentime label
 # Function to update the screentime label with seconds included
@@ -121,7 +123,7 @@ tracker_thread.start()
 
 # Start the periodic update for the screentime display
 update_screentime_display()
-
+'''
 # Controls (Example: Buttons to simulate screentime)
 btn_increase_screentime = tk.Button(controls_frame, text="Increase Screentime", command=increase_screentime)
 btn_increase_screentime.pack(side=tk.LEFT, expand=True)
@@ -137,7 +139,7 @@ def increase_screentime():
 def reset_screentime():
     # This would reset the screentime
     print("Reset screentime")
-"""
+'''
 
 
 # Update Function (simply call this once for now)
