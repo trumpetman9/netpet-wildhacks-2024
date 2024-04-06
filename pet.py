@@ -1,3 +1,34 @@
+# pet.py
+
+class Pet:
+    def __init__(self):
+        # Initialize the pet's state
+        self.state = "happy"
+        self.name = "PetNet"
+
+    def update_state(self, screentime):
+        # Logic to update the pet's state based on screentime
+        if screentime < 1 * 60 * 60:  # less than 1 hour
+            self.state = "happy"
+        elif screentime < 2 * 60 * 60:  # between 1 and 2 hours
+            self.state = "tired"
+        else:  # more than 2 hours
+            self.state = "exhausted"
+
+    def get_state(self):
+        # Return the current state
+        return self.state
+    
+    def get_name(self):
+        return self.name
+    
+    def set_name(self, name):
+        self.name = name
+
+
+
+
+'''
 import pygame
 import sys
 
@@ -38,3 +69,4 @@ while True:
     pygame.display.flip()
 
     # Position the window
+'''
