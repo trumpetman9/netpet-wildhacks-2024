@@ -11,6 +11,8 @@ import queue
 import time
 from queue import Queue
 
+import math
+
 screentime_updates = Queue()
 
 # Initialize the main window
@@ -26,31 +28,78 @@ my_profile = ttk.Frame(tabControl)
 timers = ttk.Frame(tabControl)
 shops = ttk.Frame(tabControl)
 
+
+# Create a canvas in the timers frame
+clock_canvas = tk.Canvas(timers, width=200, height=200, bg='white')
+clock_canvas.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+
+# Function to update the clock
+def update_clock():
+    # Clear the canvas
+    clock_canvas.delete('all')
+
+    # Get the current time
+    current_time = time.localtime()
+
+    # Draw the clock
+    for i in range(12):
+        angle = math.pi/6 * i
+        x = 100 + 80 * math.sin(angle)
+        y = 100 - 80 * math.cos(angle)
+        clock_canvas.create_text(x, y, text=str(i+1))
+
+    # Draw the hour hand
+    hour_angle = math.pi/6 * (current_time.tm_hour % 12)
+    hour_x = 100 + 30 * math.sin(hour_angle)
+    hour_y = 100 - 30 * math.cos(hour_angle)
+    clock_canvas.create_line(100, 100, hour_x, hour_y)
+
+    # Draw the minute hand
+    minute_angle = math.pi/30 * current_time.tm_min
+    minute_x = 100 + 40 * math.sin(minute_angle)
+    minute_y = 100 - 40 * math.cos(minute_angle)
+    clock_canvas.create_line(100, 100, minute_x, minute_y)
+
+    # Redraw the clock every 1000 ms (1 second)
+    clock_canvas.after(1000, update_clock)
+
+# Start the clock
+update_clock()
+
 # Initialize the pet
 my_pet = Pet()
 
 # Load pixel art images for each pet state
 images = {
-    "happy": PhotoImage(file="happy.png"),
-    "tired": PhotoImage(file="tired.png"),
-    "exhausted": PhotoImage(file="exhausted.png"),
+    "happy": PhotoImage(file="zingaeyes.gif"),
+    "tired": PhotoImage(file="happytomeh.gif"),
+    "exhausted": PhotoImage(file="concernedtosad.gif"),
 }
 
 # Dashboard Frames
-character_frame = tk.Frame(my_profile, borderwidth=2, relief="groove")
-statistics_frame = tk.Frame(my_profile, borderwidth=2, relief="groove")
-controls_frame = tk.Frame(my_profile, borderwidth=2, relief="groove")
-timer_frame = tk.Frame(my_profile, borderwidth=2, relief="groove")
+character_frame = tk.Frame(my_profile, borderwidth=2, padx=10, pady=10, relief="groove")
+statistics_frame = tk.Frame(my_profile, borderwidth=2, padx=10, pady=10, relief="groove")
+controls_frame = tk.Frame(my_profile, borderwidth=2, padx=10, pady=10, relief="groove")
+timer_frame = tk.Frame(timers, borderwidth=2, padx=10, pady=10, relief="groove")
 
 # Arrange frames in a grid
 character_frame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
 statistics_frame.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
 controls_frame.grid(row=2, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+timers.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+
+
 timer_frame.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
-tabControl.add(my_profile, text="My Profile")
-tabControl.add(timers, text="Timers")
-tabControl.add(shops, text="Shops")
+timer1_frame = tk.Frame(timer_frame, borderwidth=2, padx=10, pady=10, relief="groove")
+timer2_frame = tk.Frame(timer_frame, borderwidth=2, padx=10, pady=10, relief="groove")
+timer1_frame.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+timer2_frame.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+
+
+tabControl.add(my_profile, text='My Profile')
+tabControl.add(timers, text='Timers')
+tabControl.add(shops, text='Shops')
 
 
 # Configure column and row weights to make the frames responsive
@@ -59,33 +108,42 @@ root.grid_columnconfigure(1, weight=1)
 root.grid_rowconfigure(0, weight=1)
 root.grid_rowconfigure(1, weight=1)
 
-root.configure(bg="#C8A2C8")
+root.configure(bg='#C8A2C8')
 
 # Set the background color for each frame to lilac purple
-character_frame.configure(bg="#C8A2C8")
-statistics_frame.configure(bg="#C8A2C8")
-controls_frame.configure(bg="#C8A2C8")
-timer_frame.configure(bg="#C8A2C8")
+character_frame.configure(bg='#C8A2C8')
+statistics_frame.configure(bg='#C8A2C8')
+controls_frame.configure(bg='#C8A2C8')
+timer_frame.configure(bg='#C8A2C8')
+timer1_frame.configure(bg='#C8A2C8')
+timer2_frame.configure(bg='#C8A2C8')
+
+
+# Resize image so it doesn't blow up the screen lmao
+## Get the original image
+original_image = images[my_pet.get_state()]
+
+## Resize the image
+resized_image = original_image.subsample(2, 2)  # Reduce the size by half
 
 # Character Label
-character_label = tk.Label(character_frame, image=images[my_pet.get_state()])
+character_label = tk.Label(character_frame, image=resized_image, font=("Comic Sans MS", 14, "normal"))
 character_label.pack(expand=True)
-
 # Statistics (Example: Label to show screentime)
-screentime_label = tk.Label(statistics_frame, text="Screentime: 0h 0m")
+
+screentime_label = tk.Label(statistics_frame, text="s c r e e n t i m e:\n 0 h 0 m", font=("Comic Sans MS", 14, "normal"), padx=10, pady=10, bg = '#47523a')
 screentime_label.pack(expand=True)
 
-
 # Controls for pet name
-name_frame = tk.Frame(my_profile, borderwidth=2, relief="groove")
-name_frame.grid(row=2, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+name_frame = tk.Frame(my_profile, borderwidth=2, relief="groove", bg="#C8A2C8", padx=10, pady=10)
+name_frame.grid(row=2, column=0, columnspan=2, sticky="nsew")
 root.grid_rowconfigure(2, weight=1)
 
 # Label and Entry for pet name
-name_label = tk.Label(name_frame, text="Pet Name:")
+name_label = tk.Label(name_frame, text="p e t   n a m e:", font=("Comic Sans MS", 14, "normal"), padx=10, pady=10, bg = '#47523a')
 name_label.pack(side=tk.LEFT, padx=5)
 
-name_entry = tk.Entry(name_frame)
+name_entry = tk.Entry(name_frame, bg='#c1b5c7', font=("Comic Sans MS", 14, "normal"), fg='#000000')
 name_entry.pack(side=tk.LEFT, expand=True, padx=5)
 
 
@@ -98,16 +156,18 @@ def set_pet_name():
 
 
 # Button to set pet name
-set_name_button = tk.Button(name_frame, text="Set Name", command=set_pet_name)
+set_name_button = tk.Button(name_frame, text="s e t   n a m e", command=set_pet_name , font=("Comic Sans MS", 14, "normal"))
 set_name_button.pack(side=tk.RIGHT, padx=5)
 
 # Display label for pet's name
-pet_name_display = tk.Label(character_frame, text="")
+pet_name_display = tk.Label(character_frame, text="", font=("Comic Sans MS", 14, "normal"))
 pet_name_display.pack(side=tk.BOTTOM)
 
 
 def update_pet_name_display():
-    pet_name_display.config(text=my_pet.get_name())
+    pet_name_display.config(text=my_pet.get_name(), padx=10, pady=10, bg = '#47523a')
+    pet_name_display.pack(side=tk.BOTTOM, padx=10, pady=10)
+
 
 
 update_pet_name_display()
@@ -188,19 +248,39 @@ def start_screentime_thread():
 # Call 'start_screentime_thread' to begin tracking and updating screentime
 
 
+
+# Character Label
+
+# Get the original image
+clock_img = PhotoImage(file="clock.png")
+
+# Character Label
+character_label = tk.Label(timers, image=clock_img, font=("Comic Sans MS", 14, "normal"), bg='#C8A2C8', padx=10, pady=10)
+character_label.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+
 # Timer Input
-timer_label = tk.Label(timer_frame, text="Set Time (s):")
+timer_label = tk.Label(timer1_frame, text="set time(s):", font=("Comic Sans MS", 14, "normal"), padx=10, pady=10, bg = '#47523a')
 timer_label.pack(side=tk.LEFT, padx=5, pady=5)
-timer_entry = tk.Entry(timer_frame)
+timer_entry = tk.Entry(timer1_frame, bg='#c1b5c7', font=("Comic Sans MS", 14, "normal"), fg='#ffffff')
 timer_entry.pack(side=tk.LEFT, padx=5, pady=5)
 
 
 # Start Button
 start_button = tk.Button(
-    timer_frame, text="Start Timer", command=lambda: start_timer(int(timer_entry.get()))
+    timer1_frame, text="timer: START!", font=("Comic Sans MS", 14, "normal"), padx=10, pady=10, bg = '#47523a', bd=0, relief="ridge", command=lambda: start_timer(int(timer_entry.get()))
 )
 start_button.pack(pady=10)
 
+# App bundle ID input
+app_bundle_id_label = tk.Label(timer2_frame, text="enter app bundle i.d.:", font=("Comic Sans MS", 14, "italic"), padx=10, pady=10, bg = '#47523a')
+app_bundle_id_label.pack(side=tk.LEFT, padx=5, pady=5)
+
+app_bundle_id_entry = tk.Entry(timer2_frame, bg='#c1b5c7', font=("Comic Sans MS", 14, "normal"), fg='#ffffff')
+app_bundle_id_entry.pack(pady=10)
+
+# # put timer1 and timer2 in timer_frame
+# timer1_frame.pack(side=tk.TOP, fill=tk.X, expand=True)
+# timer2_frame.pack(side=tk.TOP, fill=tk.X, expand=True)
 
 # Function to start the timer and screentime tracker
 def start_timer(total_time):
@@ -208,9 +288,7 @@ def start_timer(total_time):
     time_limit = int(timer_entry.get())
     print("Timer set to:", time_limit)
 
-    start_button.config(
-        state=tk.DISABLED
-    )  # Disable the start button to prevent re-starting
+    start_button.config(state=tk.DISABLED, relief="raised")
     tracker_thread = threading.Thread(
         target=lambda: track_time(total_time), daemon=True
     )
@@ -251,7 +329,7 @@ def update_character_state(state):
     root.after(0, lambda: character_label.config(image=images[state]))
 
 
-label1 = tk.Label(my_profile, text="My profile")
+label1 = tk.Label(my_profile, text="My profile", font=("Comic Sans MS", 14, "normal"))
 
 
 # Start the Tkinter event loop
