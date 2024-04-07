@@ -45,6 +45,12 @@ statistics_frame.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
 controls_frame.grid(row=2, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 timer_frame.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
+tabControl.add(my_profile, text='My Profile')
+tabControl.add(timers, text='Timers')
+tabControl.add(shops, text='Shops')
+
+
+
 # Configure column and row weights to make the frames responsive
 root.grid_columnconfigure(0, weight=1)
 root.grid_columnconfigure(1, weight=1)
@@ -137,7 +143,7 @@ def start_screentime_thread():
     update_screentime_display()
 
 # Call 'start_screentime_thread' to begin tracking and updating screentime
-start_screentime_thread()
+
 
 
 
@@ -216,5 +222,9 @@ def reset_screentime():
 
 label1 = tk.Label(my_profile,text="My profile")
 
+
 # Start the Tkinter event loop
+start_screentime_thread()
+
 root.mainloop()
+
