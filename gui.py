@@ -9,6 +9,9 @@ from screentime_tracker import track_screentime
 import threading
 import queue
 import time
+from queue import Queue
+
+screentime_updates = Queue()
 
 # Initialize the main window
 root = tk.Tk()
@@ -118,26 +121,54 @@ screentime_queue = queue.Queue()
 # Global variable to hold the current screentime
 current_screentime = 0
 
-def start_screentime_tracker(app_bundle_id="Google Chrome"):
+def start_screentime_tracker_with_input():
     global current_screentime
-    for screentime in track_screentime(0, app_bundle_id, update_interval=1):
-        current_screentime = screentime
-        print("Current screentime:", current_screentime)
+    # Get the app bundle ID from the entry widget
+    app_bundle_id = app_bundle_id_entry.get()
+    print(f"Starting screentime tracker for: {app_bundle_id}")
 
-def update_screentime_display():
-    # Convert the screentime from seconds to hours, minutes, and seconds
-    hours, remainder = divmod(current_screentime, 3600)
-    minutes, seconds = divmod(remainder, 60)
-    # Update the screentime label
-    screentime_label.config(text=f"Screentime: {int(hours)}h {int(minutes)}m {int(seconds)}s")
-    # Schedule this function to be called again after 1000ms (1 second)
-    screentime_label.after(1000, update_screentime_display)
+    # Start the screentime tracker in a new thread to avoid freezing the UI
+    def screentime_tracking():
+        for screentime in track_screentime(0, app_bundle_id, update_interval=1):
+            current_screentime = screentime
+            screentime_updates.put(current_screentime)
+            print("Current screentime:", current_screentime)
 
-# Start the screentime tracker in a separate thread to avoid blocking the GUI
-def start_screentime_thread():
-    screentime_thread = threading.Thread(target=start_screentime_tracker)
+    screentime_thread = threading.Thread(target=screentime_tracking)
     screentime_thread.daemon = True  # Ensure the thread will exit when the main program does
     screentime_thread.start()
+
+
+# App bundle ID input
+app_bundle_id_label = tk.Label(root, text="Enter App Bundle ID:")
+app_bundle_id_label.pack()
+
+app_bundle_id_entry = tk.Entry(root)
+app_bundle_id_entry.pack()
+
+def update_screentime_display():
+    try:
+        # Try to get the latest screentime value from the queue
+        new_screentime = screentime_updates.get_nowait()
+        # Convert the screentime from seconds to hours, minutes, and seconds
+        hours, remainder = divmod(new_screentime, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        # Update the screentime label with the new value in the desired format
+        screentime_label.config(text=f"Screentime: {int(hours)}h {int(minutes)}m {int(seconds)}s")
+    except queue.Empty:
+        pass  # No new value in the queue
+    finally:
+        # Schedule the next update after 1000ms (1 second)
+        screentime_label.after(1000, update_screentime_display)
+
+
+time_limit = 0
+# Start the screentime tracker in a separate thread to avoid blocking the GUI
+def start_screentime_thread():
+    if time_limit > 0:
+        screentime_thread = threading.Thread(target=start_screentime_tracker_with_input)
+        screentime_thread.daemon = True  # Ensure the thread will exit when the main program does
+        screentime_thread.start()
 
     # Start updating the screentime display
     update_screentime_display()
@@ -153,6 +184,8 @@ timer_label.pack(side=tk.LEFT, padx=5, pady=5)
 timer_entry = tk.Entry(timer_frame)
 timer_entry.pack(side=tk.LEFT, padx=5, pady=5)
 
+
+
 # Start Button
 start_button = tk.Button(
     timer_frame, text="Start Timer", command=lambda: start_timer(int(timer_entry.get()))
@@ -160,8 +193,13 @@ start_button = tk.Button(
 start_button.pack(pady=10)
 
 
+
 # Function to start the timer and screentime tracker
 def start_timer(total_time):
+    global time_limit
+    time_limit =  int(timer_entry.get())
+    print("Timer set to:", time_limit)
+
     start_button.config(
         state=tk.DISABLED
     )  # Disable the start button to prevent re-starting
@@ -170,15 +208,17 @@ def start_timer(total_time):
     )
     tracker_thread.start()
 
-    screentime_tracker_thread = threading.Thread(target=start_screentime_tracker, daemon=True)
+    screentime_tracker_thread = threading.Thread(target=start_screentime_tracker_with_input, daemon=True)
     screentime_tracker_thread.start()
 
 
 # Function to track time and update character state
 def track_time(total_time):
+    print("")
     start_time = time.time()
     while True:
-        elapsed_time = time.time() - start_time
+        elapsed_time = current_screentime
+        #elapsed_time = time.time() - start_time
         if elapsed_time >= total_time:
             update_character_state("exhausted")
             break
@@ -191,33 +231,6 @@ def track_time(total_time):
 def update_character_state(state):
     print("Updating character state to {state}")
     root.after(0, lambda: character_label.config(image=images[state]))
-
-
-"""
-# Controls (Example: Buttons to simulate screentime)
-btn_increase_screentime = tk.Button(controls_frame, text="Increase Screentime", command=increase_screentime)
-btn_increase_screentime.pack(side=tk.LEFT, expand=True)
-
-btn_reset_screentime = tk.Button(controls_frame, text="Reset Screentime", command=reset_screentime)
-btn_reset_screentime.pack(side=tk.LEFT, expand=True)
-
-# Event Handlers for Controls
-def increase_screentime():
-    # This would be a placeholder to simulate increasing screentime
-    print("Increase screentime")
-
-def reset_screentime():
-    # This would reset the screentime
-    print("Reset screentime")
-"""
-
-
-# Update Function (simply call this once for now)
-# This would be called periodically in the real application
-"""def update_character_state():
-    # Update the pet's state and the image shown
-    character_label.config(image=images[my_pet.get_state()])
-"""
 
 
 label1 = tk.Label(my_profile,text="My profile")
