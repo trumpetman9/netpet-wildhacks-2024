@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import ttk, PhotoImage
 from pet import Pet
 
-from screentime_tracker import track_screentime
+#from screentime_tracker import track_screentime
 
 import threading
 import queue
@@ -17,8 +17,11 @@ root.title("Pixel Pet Dashboard")
 # Create a notebook for tabs
 
 tabControl = ttk.Notebook(root)
+tabControl.pack(fill="both", expand=True)
 
-my_profile = ttk.Frame()
+my_profile = ttk.Frame(tabControl)
+timers = ttk.Frame(tabControl)
+shops = ttk.Frame(tabControl)
 
 # Initialize the pet
 my_pet = Pet()
@@ -31,10 +34,10 @@ images = {
 }
 
 # Dashboard Frames
-character_frame = tk.Frame(root, borderwidth=2, relief="groove")
-statistics_frame = tk.Frame(root, borderwidth=2, relief="groove")
-controls_frame = tk.Frame(root, borderwidth=2, relief="groove")
-timer_frame = tk.Frame(root, borderwidth=2, relief="groove")
+character_frame = tk.Frame(my_profile, borderwidth=2, relief="groove")
+statistics_frame = tk.Frame(my_profile, borderwidth=2, relief="groove")
+controls_frame = tk.Frame(my_profile, borderwidth=2, relief="groove")
+timer_frame = tk.Frame(my_profile, borderwidth=2, relief="groove")
 
 # Arrange frames in a grid
 character_frame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
@@ -58,7 +61,7 @@ screentime_label.pack(expand=True)
 
 
 # Controls for pet name
-name_frame = tk.Frame(root, borderwidth=2, relief="groove")
+name_frame = tk.Frame(my_profile, borderwidth=2, relief="groove")
 name_frame.grid(row=2, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 root.grid_rowconfigure(2, weight=1)
 
@@ -189,6 +192,9 @@ def reset_screentime():
     # Update the pet's state and the image shown
     character_label.config(image=images[my_pet.get_state()])
 '''
+
+
+label1 = tk.Label(my_profile,text="My profile")
 
 # Start the Tkinter event loop
 root.mainloop()
