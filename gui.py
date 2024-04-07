@@ -51,6 +51,14 @@ root.grid_columnconfigure(1, weight=1)
 root.grid_rowconfigure(0, weight=1)
 root.grid_rowconfigure(1, weight=1)
 
+root.configure(bg='#C8A2C8')
+
+# Set the background color for each frame to lilac purple
+character_frame.configure(bg='#C8A2C8')
+statistics_frame.configure(bg='#C8A2C8')
+controls_frame.configure(bg='#C8A2C8')
+timer_frame.configure(bg='#C8A2C8')
+
 # Character Label
 character_label = tk.Label(character_frame, image=images[my_pet.get_state()])
 character_label.pack(expand=True)
@@ -96,41 +104,6 @@ def update_pet_name_display():
 
 update_pet_name_display()
 
-# Timer Input
-timer_label = tk.Label(timer_frame, text="Set Time (s):")
-timer_label.pack(side=tk.LEFT, padx=5, pady=5)
-timer_entry = tk.Entry(timer_frame)
-timer_entry.pack(side=tk.LEFT, padx=5, pady=5)
-
-# Start Button
-start_button = tk.Button(timer_frame, text="Start Timer", command=lambda: start_timer(int(timer_entry.get())))
-start_button.pack(pady=10)
-
-
-# Function to start the timer and screentime tracker
-def start_timer(total_time):
-    start_button.config(state=tk.DISABLED)  # Disable the start button to prevent re-starting
-    tracker_thread = threading.Thread(target=lambda: track_time(total_time), daemon=True)
-    tracker_thread.start()
-
-# Function to track time and update character state
-def track_time(total_time):
-    start_time = time.time()
-    while True:
-        elapsed_time = time.time() - start_time
-        if elapsed_time >= total_time:
-            update_character_state("exhausted")
-            break
-        elif elapsed_time >= total_time / 2:
-            update_character_state("tired")
-        time.sleep(1)  # Check every second
-
-# Function to update the pet's state based on time
-def update_character_state(state):
-    print("Updating character state to {state}")
-    root.after(0, lambda: character_label.config(image=images[state]))
-
-
 # screentime tracket
 screentime_queue = queue.Queue()
 
@@ -161,12 +134,56 @@ def update_screentime_display():
         root.after(1000, update_screentime_display)
 
 
-# Start the tracker in a separate thread
-tracker_thread = threading.Thread(target=start_screentime_tracker, daemon=True)
-tracker_thread.start()
-
 # Start the periodic update for the screentime display
 update_screentime_display()
+
+
+# Timer Input
+timer_label = tk.Label(timer_frame, text="Set Time (s):")
+timer_label.pack(side=tk.LEFT, padx=5, pady=5)
+timer_entry = tk.Entry(timer_frame)
+timer_entry.pack(side=tk.LEFT, padx=5, pady=5)
+
+# Start Button
+start_button = tk.Button(
+    timer_frame, text="Start Timer", command=lambda: start_timer(int(timer_entry.get()))
+)
+start_button.pack(pady=10)
+
+
+# Function to start the timer and screentime tracker
+def start_timer(total_time):
+    start_button.config(
+        state=tk.DISABLED
+    )  # Disable the start button to prevent re-starting
+    tracker_thread = threading.Thread(
+        target=lambda: track_time(total_time), daemon=True
+    )
+    tracker_thread.start()
+
+    screentime_tracker_thread = threading.Thread(target=start_screentime_tracker, daemon=True)
+    screentime_tracker_thread.start()
+
+
+# Function to track time and update character state
+def track_time(total_time):
+    start_time = time.time()
+    while True:
+        elapsed_time = time.time() - start_time
+        if elapsed_time >= total_time:
+            update_character_state("exhausted")
+            break
+        elif elapsed_time >= total_time / 2:
+            update_character_state("tired")
+        time.sleep(1)  # Check every second
+
+
+# Function to update the pet's state based on time
+def update_character_state(state):
+    print("Updating character state to {state}")
+    root.after(0, lambda: character_label.config(image=images[state]))
+
+
 """
 # Controls (Example: Buttons to simulate screentime)
 btn_increase_screentime = tk.Button(controls_frame, text="Increase Screentime", command=increase_screentime)
@@ -188,10 +205,10 @@ def reset_screentime():
 
 # Update Function (simply call this once for now)
 # This would be called periodically in the real application
-'''def update_character_state():
+"""def update_character_state():
     # Update the pet's state and the image shown
     character_label.config(image=images[my_pet.get_state()])
-'''
+"""
 
 
 label1 = tk.Label(my_profile,text="My profile")
