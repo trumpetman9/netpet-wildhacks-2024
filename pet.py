@@ -5,6 +5,7 @@ class Pet:
         # Initialize the pet's state
         self.state = "happy"
         self.name = "PetNet"
+        self.coins = 0
 
     def update_state(self, screentime):
         # Logic to update the pet's state based on screentime
@@ -19,6 +20,11 @@ class Pet:
         # Return the current state
         return self.state
     
+    def add_coins(self, num):
+        self.coins = self.coins + num
+
+
+
     def get_name(self):
         return self.name
     

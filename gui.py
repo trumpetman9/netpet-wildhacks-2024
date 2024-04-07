@@ -3,6 +3,7 @@
 import tkinter as tk
 from tkinter import ttk, PhotoImage
 from pet import Pet
+import math
 
 from screentime_tracker import track_screentime
 
@@ -10,8 +11,6 @@ import threading
 import queue
 import time
 from queue import Queue
-
-import math
 
 screentime_updates = Queue()
 
@@ -28,52 +27,19 @@ my_profile = ttk.Frame(tabControl)
 timers = ttk.Frame(tabControl)
 shops = ttk.Frame(tabControl)
 
-
-# Create a canvas in the timers frame
-clock_canvas = tk.Canvas(timers, width=200, height=200, bg='white')
-clock_canvas.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
-
-# Function to update the clock
-def update_clock():
-    # Clear the canvas
-    clock_canvas.delete('all')
-
-    # Get the current time
-    current_time = time.localtime()
-
-    # Draw the clock
-    for i in range(12):
-        angle = math.pi/6 * i
-        x = 100 + 80 * math.sin(angle)
-        y = 100 - 80 * math.cos(angle)
-        clock_canvas.create_text(x, y, text=str(i+1))
-
-    # Draw the hour hand
-    hour_angle = math.pi/6 * (current_time.tm_hour % 12)
-    hour_x = 100 + 30 * math.sin(hour_angle)
-    hour_y = 100 - 30 * math.cos(hour_angle)
-    clock_canvas.create_line(100, 100, hour_x, hour_y)
-
-    # Draw the minute hand
-    minute_angle = math.pi/30 * current_time.tm_min
-    minute_x = 100 + 40 * math.sin(minute_angle)
-    minute_y = 100 - 40 * math.cos(minute_angle)
-    clock_canvas.create_line(100, 100, minute_x, minute_y)
-
-    # Redraw the clock every 1000 ms (1 second)
-    clock_canvas.after(1000, update_clock)
-
-# Start the clock
-update_clock()
+####
+#Gif functionality
+from PIL import Image, ImageTk
 
 # Initialize the pet
 my_pet = Pet()
 
+
 # Load pixel art images for each pet state
 images = {
-    "happy": PhotoImage(file="zingaeyes.gif"),
-    "tired": PhotoImage(file="happytomeh.gif"),
-    "exhausted": PhotoImage(file="concernedtosad.gif"),
+    "happy": "gifs/zingaeyes.gif",
+    "tired": "gifs/happytomeh.gif",
+    "exhausted": "gifs/concernedtosad.gif",
 }
 
 # Dashboard Frames
@@ -87,8 +53,6 @@ character_frame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
 statistics_frame.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
 controls_frame.grid(row=2, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 timers.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
-
-
 timer_frame.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
 timer1_frame = tk.Frame(timer_frame, borderwidth=2, padx=10, pady=10, relief="groove")
@@ -100,6 +64,7 @@ timer2_frame.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 tabControl.add(my_profile, text='My Profile')
 tabControl.add(timers, text='Timers')
 tabControl.add(shops, text='Shops')
+
 
 
 # Configure column and row weights to make the frames responsive
@@ -118,17 +83,45 @@ timer_frame.configure(bg='#C8A2C8')
 timer1_frame.configure(bg='#C8A2C8')
 timer2_frame.configure(bg='#C8A2C8')
 
+def play_gif(container, gif_path):
+    gif = Image.open(gif_path)  # Open the GIF file using PIL
 
-# Resize image so it doesn't blow up the screen lmao
-## Get the original image
-original_image = images[my_pet.get_state()]
+    # Function to update the displayed frame
+    def update_frame(frame):
+        try:
+            gif.seek(frame)  # Move to the next frame of the GIF
+            frame_image = ImageTk.PhotoImage(gif.convert("RGBA"))  # Convert the image to a Tkinter compatible format
+            container.configure(image=frame_image)
+            container.image = frame_image  # Keep a reference to avoid garbage collection
+            frame += 1
+            root.after(gif.info['duration'], update_frame, frame)  # Schedule the next frame update
+        except EOFError:
+            update_frame(0)  # Loop the animation
 
-## Resize the image
-resized_image = original_image.subsample(2, 2)  # Reduce the size by half
+    # Start the animation
+    update_frame(0)
+
+# Character Frame where the GIF should be displayed
+character_label = tk.Label(character_frame)
+character_label.pack(expand=True)
+
+# Function to update character's GIF based on its state
+def update_character_gif():
+    gif_path = images[my_pet.get_state()]  # Get the current state's GIF path
+    play_gif(character_label, gif_path)  # Play the GIF
+
+update_character_gif() 
+
+# # Resize image so it doesn't blow up the screen lmao
+# ## Get the original image
+# original_image = images[my_pet.get_state()]
+
+# ## Resize the image
+# resized_image = original_image.subsample(2, 2)  # Reduce the size by half
 
 # Character Label
-character_label = tk.Label(character_frame, image=resized_image, font=("Comic Sans MS", 14, "normal"))
-character_label.pack(expand=True)
+# character_label = tk.Label(character_frame, image=resized_image, font=("Comic Sans MS", 14, "normal"))
+# character_label.pack(expand=True)
 # Statistics (Example: Label to show screentime)
 
 screentime_label = tk.Label(statistics_frame, text="s c r e e n t i m e:\n 0 h 0 m", font=("Comic Sans MS", 14, "normal"), padx=10, pady=10, bg = '#47523a')
