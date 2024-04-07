@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import ttk, PhotoImage
 from pet import Pet
 
-#from screentime_tracker import track_screentime
+from screentime_tracker import track_screentime
 
 import threading
 import queue
@@ -107,35 +107,38 @@ update_pet_name_display()
 # screentime tracket
 screentime_queue = queue.Queue()
 
+# Assuming 'track_screentime' function is already defined and imported
 
-def start_screentime_tracker():
-    print("start_screentime_tracker running")
-    for screentime in track_screentime("com.tinyspeck.slackmacgap"):
-        screentime_queue.put(screentime)
-        print("screentime running")
+# Global variable to hold the current screentime
+current_screentime = 0
 
+def start_screentime_tracker(app_bundle_id="Google Chrome"):
+    global current_screentime
+    for screentime in track_screentime(0, app_bundle_id, update_interval=1):
+        current_screentime = screentime
+        print("Current screentime:", current_screentime)
 
-# Function to update the screentime label
-# Function to update the screentime label with seconds included
 def update_screentime_display():
-    try:
-        # Get the latest screentime value from the queue
-        screentime = screentime_queue.get_nowait()
-        # Format the screentime into hours, minutes, and seconds and update the label
-        hours, remainder = divmod(screentime, 3600)
-        minutes, seconds = divmod(remainder, 60)
-        screentime_label.config(
-            text=f"Screentime: {int(hours)}h {int(minutes)}m {int(seconds)}s"
-        )
-    except queue.Empty:
-        pass
-    finally:
-        # Schedule this function to be called again after 1000ms (1 second) to keep the display updated
-        root.after(1000, update_screentime_display)
+    # Convert the screentime from seconds to hours, minutes, and seconds
+    hours, remainder = divmod(current_screentime, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    # Update the screentime label
+    screentime_label.config(text=f"Screentime: {int(hours)}h {int(minutes)}m {int(seconds)}s")
+    # Schedule this function to be called again after 1000ms (1 second)
+    screentime_label.after(1000, update_screentime_display)
 
+# Start the screentime tracker in a separate thread to avoid blocking the GUI
+def start_screentime_thread():
+    screentime_thread = threading.Thread(target=start_screentime_tracker)
+    screentime_thread.daemon = True  # Ensure the thread will exit when the main program does
+    screentime_thread.start()
 
-# Start the periodic update for the screentime display
-update_screentime_display()
+    # Start updating the screentime display
+    update_screentime_display()
+
+# Call 'start_screentime_thread' to begin tracking and updating screentime
+start_screentime_thread()
+
 
 
 # Timer Input
