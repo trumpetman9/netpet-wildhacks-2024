@@ -53,38 +53,3 @@ def track_screentime(cumulative_time, app_bundle_id, update_interval=1):
 
 
 track_screentime(0, "Google Chrome")
-
-        # while True:
-        #     active_app = (
-        #         NSWorkspace.sharedWorkspace().frontmostApplication().bundleIdentifier()
-        #     )
-        #     print(f"Detected active app: {active_app}")
-
-        #     if active_app == app_bundle_id:
-        #         print("MATCH - The app is active.")
-        #         if start_time is None:
-        #             # Start the timer when the app becomes active.
-        #             start_time = time.time()
-        #             print(f"Started timing: {start_time}")
-        #     else:
-        #         if start_time is not None:
-        #             # Calculate the time the app was active and add it to total_time.
-        #             total_time += time.time() - start_time
-        #             # Reset start_time since the app is no longer active.
-        #             start_time = None
-        #             print(f"App is no longer active. Total screentime: {total_time}")
-
-        #     # If the app is still active, update the total_time without resetting the start_time.
-        #     if start_time is not None:
-        #         # The application is currently active.
-        #         current_active_time = time.time() - start_time
-        #         current_total_time = total_time + current_active_time
-        #         print(
-        #             f"Currently active for: {current_active_time} seconds. Total screentime: {current_total_time}"
-        #         )
-        #     else:
-        #         # The application is not currently active.
-        #         current_total_time = total_time
-
-        #     time.sleep(update_interval)
-        #     yield current_total_time
