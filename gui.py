@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter import ttk, PhotoImage
 from pet import Pet
 import math
+from PIL import Image, ImageTk
 
 from screentime_tracker import track_screentime
 
@@ -16,6 +17,7 @@ screentime_updates = Queue()
 
 # Initialize the main window
 root = tk.Tk()
+
 root.title("Pixel Pet Dashboard")
 
 # Create a notebook for tabs
@@ -29,17 +31,23 @@ shops = ttk.Frame(tabControl)
 
 ####
 #Gif functionality
-from PIL import Image, ImageTk
+
 
 # Initialize the pet
 my_pet = Pet()
 
 
-# Load pixel art images for each pet state
+# # Load the images and keep references in global variables
+# global happy_gif, tired_gif, exhausted_gif
+# happy_gif = PhotoImage(file="zingaeyes.gif")
+# tired_gif = PhotoImage(file="happytomeh.gif")
+# exhausted_gif = PhotoImage(file="concernedtosad.gif")
+
+# Store the PhotoImage objects directly in the 'images' dictionary
 images = {
-    "happy": "gifs/zingaeyes.gif",
-    "tired": "gifs/happytomeh.gif",
-    "exhausted": "gifs/concernedtosad.gif",
+    "happy": "zingaeyes.gif",
+    "tired": "happytomeh.gif",
+    "exhausted": "concernedtosad.gif"
 }
 
 # Dashboard Frames
@@ -107,6 +115,7 @@ character_label.pack(expand=True)
 
 # Function to update character's GIF based on its state
 def update_character_gif():
+    #images get the path directly
     gif_path = images[my_pet.get_state()]  # Get the current state's GIF path
     play_gif(character_label, gif_path)  # Play the GIF
 
